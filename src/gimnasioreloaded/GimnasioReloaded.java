@@ -5,13 +5,18 @@
  */
 package gimnasioreloaded;
 
+import java.io.*;
+import java.util.*;
+
 /**
  *
  * @author alejosebasp
+ * @since viernes 10 de marzo 2017
+ * @version 1.0
  */
 public class GimnasioReloaded {
 
-    public class Estudiante{ //Clase estudiante manejara los datos de cada estudiante.
+    public static class Estudiante{ //Clase estudiante manejara los datos de cada estudiante.
         private String nombre;
         private String apellido;
         private int cedula;
@@ -80,18 +85,166 @@ public class GimnasioReloaded {
         public boolean sumarEntrada(){
             
             nro_entradas++;
-            
-            if (nro_entradas > 3) {
-                return false;
-            } else {
-                return true;
-            }
+            return nro_entradas <= 3;
         }
     }
     
+    /**
+     * 
+     * Cubiculo: Clase que maneja los cubiculos
+     * @param cas_llenos: numero de casileros llenos en el cubiculo.
+     * @param num_casilleros: numero de casilleros totales del cubiculo, sin importar 
+     * si estan llenos o vacios
+     * @param estudiantes: arreglo de tamaño num_casilleros, 
+     */
+    public static class Cubiculo{
+        private int cas_llenos;
+        private Estudiante[] estudiantes;
+        private int num_casilleros;
+        
+        public Cubiculo(int num_casilleros){
+            this.num_casilleros = num_casilleros;
+            this.estudiantes = new Estudiante[num_casilleros];
+            cas_llenos = 0;
+        }
+        
+        /**
+         * 
+         * @param nombre 
+         * @param apellido
+         * @param cedula 
+         * agrega a un estudiante en la primera posicion vacia que encuentre 
+         * y aumenta el numero de cassilleros llenos
+         */
+        public void agregarEstudiante(String nombre, String apellido, int cedula){
+            for (Estudiante estudiante : estudiantes) {
+                if (estudiante == null) {
+                    estudiante = new Estudiante(nombre, apellido, cedula);
+                    cas_llenos++;
+                    return;
+                }
+            }
+        }
+        
+        /**
+         * 
+         * @param cedula 
+         * elimina el estudiante con la cedula dada, si
+         */
+        public void eliminarEstudiante(int cedula){
+            for (Estudiante estudiante : estudiantes) {
+                if (estudiante.cedula == cedula) {
+                    String nombre = estudiante.nombre;
+                    estudiante = null; 
+                    cas_llenos--; //disminuye el numero de casilleros llenos
+                    System.out.println(nombre);
+                    return;
+                }
+            }
+        }
+        
+        //retorna el numero de casilleros llenos.
+        public int casillerosLlenos(){
+            return cas_llenos;
+        }
+        
+        /**
+         * 
+         * @return true si esta lleno el cubiculo y false si hay casilleros vacios.
+         */
+        public boolean lleno(){
+            return cas_llenos == num_casilleros;
+        }
+    }
     
-    public static void main(String[] args) {
-        // TODO code application logic here
+    public static void main(String[] args) throws IOException {
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        String entrada = bf.readLine();
+        int num_casos = Integer.parseInt(entrada);
+        
+        for (int i = 0; i < num_casos; i++) {
+            
+            //Lista para guardar todos los estudiantes ingresados al sistema.
+            ArrayList<Estudiante> listaEstudiantes = new ArrayList<>();
+            //Lectura del numero de cubiculos.
+            entrada = bf.readLine();
+            int num_cubiculos = Integer.parseInt(entrada);
+            Cubiculo[] cubiculos = new Cubiculo[num_cubiculos];
+            
+            //se reciben los casilleros por cada cubiculo
+            entrada = bf.readLine();
+            String[] casilleros = entrada.split(" ");
+            
+            for (int j = 0; j < num_cubiculos; j++) {
+                //Se crean los cubiculos con la cantidad de casilleros de cada uno.
+                cubiculos[j] = new Cubiculo(Integer.parseInt(casilleros[j]));
+            }
+            
+            //se guardan los numeros de comandos a ejecutar.
+            entrada = bf.readLine();
+            int num_comandos = Integer.parseInt(entrada);
+            
+            for (int j = 0; j < num_comandos; j++) {
+                
+                String nombre = null, apellido = null;
+                int cedula = 0;
+                
+                entrada = bf.readLine();
+                String[] comando = entrada.split(" ");
+                
+                if (comando[0].equals("ingresar")) { //se evalua si el comando es ingresar
+                    
+                    boolean cond1 = false, cond2 = false, cond3 = false;
+                    
+                    //se evalua las restrigciones de tamaño de caracteres para cada dato.
+                    if (comando[1].length() <= 50 && comando[1].length() > 0) { 
+                        nombre = comando[1];
+                        cond1 = true;
+                    }
+                    if (comando[2].length() > 0 && comando[2].length() <= 50) {
+                        apellido = comando[2];
+                        cond2 = true;
+                    }
+                    if (comando[3].length() > 0 && comando[3].length() <= 10) {
+                        cedula = Integer.parseInt(comando[3]);
+                        cond3 = true;
+                    }
+                    
+                    //se evalua si se cumplen las condiciones de longitud de caracteres
+                    if (cond1 && cond2 && cond3) {
+                        //se buscara el cubiculo con menor carga
+                        double cargaTotal = 1;
+                        for (Cubiculo cubiculo : cubiculos) {
+                            //se calcula la carga de cada cubiculo
+                            double cargaCubiculo = cubiculo.cas_llenos / cubiculo.num_casilleros;
+                            //si esa carga es menor a la carga total actual, se convierte en la nueva carga
+                            if (cargaCubiculo < cargaTotal) {
+                                cargaTotal = cargaCubiculo;
+                            }
+                        }
+
+                        //se busca cuando la carga de cada cubiculo es igual a la carga total.
+                        for (int k = 0; k < num_cubiculos; k++) {
+                            double cargaCubiiculo = cubiculos[k].cas_llenos / cubiculos[k].num_casilleros;
+
+                            //si son iguales, se agrega el estudiante al cubiculo y casillero libre
+                            //con menor valor y se rompe el ciclo
+                            if (cargaCubiiculo == cargaTotal) {
+                                cubiculos[k].agregarEstudiante(nombre, apellido, cedula);
+                                break;
+                            }
+                        }
+                    }
+                    
+                }
+                //Se evalua si la operacion es salir y luego si se cumple con el tamaño de los datos.
+                else if(comando[0].equals("salir")){ //se evalua si el comando es salir
+                    if (comando[1].length() > 0 && comando[1].length() <= 10) {
+                        cedula = Integer.parseInt(comando[1]);
+                    }
+                }
+            }
+        }
     }
     
 }
