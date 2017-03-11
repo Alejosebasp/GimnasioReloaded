@@ -297,10 +297,10 @@ public class GimnasioReloaded {
                 else if(comando[0].equals("salir")){ //se evalua si el comando es salir
                     if (comando[1].length() > 0 && comando[1].length() <= 10) {
                         cedula = Integer.parseInt(comando[1]);
-                        
+                        //se busca si el estudiante esta en la base de datos.
                         for (Estudiante e : listaEstudiantes) {
                             if (e.getCedula() == cedula) {
-                                
+                                //si esta, se procede a eliminar del cubiculo y casillero asignado
                                 cubiculos[e.getNro_cubiculo()].eliminarEstudiante(cedula);
                                 break;
                             }
