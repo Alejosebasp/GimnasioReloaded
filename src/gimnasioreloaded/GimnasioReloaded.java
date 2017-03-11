@@ -29,6 +29,7 @@ public class GimnasioReloaded {
             this.nombre = nombre;
             this.apellido = apellido;
             this.cedula = cedula;
+            this.nro_entradas = 0;
         }
         
         //gets and sets de cada atributo de la clase estudiante.
@@ -83,7 +84,6 @@ public class GimnasioReloaded {
         //Aumenta el numero de entradas de cada estudiante y valida si es mayor 
         //o menor que 3 si si, enviia false, en caso contrario true. 
         public boolean sumarEntrada(){
-            
             nro_entradas++;
             return nro_entradas <= 3;
         }
@@ -116,11 +116,13 @@ public class GimnasioReloaded {
          * agrega a un estudiante en la primera posicion vacia que encuentre 
          * y aumenta el numero de cassilleros llenos
          */
-        public void agregarEstudiante(String nombre, String apellido, int cedula){
-            for (Estudiante estudiante : estudiantes) {
-                if (estudiante == null) {
-                    estudiante = new Estudiante(nombre, apellido, cedula);
-                    cas_llenos++;
+        public void agregarEstudiante(Estudiante estudiante, int num_cubiculo){
+            for (int i = 0; i < num_casilleros; i++) {
+                if (estudiantes[i] == null) {
+                    estudiantes[i] = estudiante;
+                    estudiante.setNro_cubiculo(num_cubiculo); //edita el cubiculo
+                    estudiante.setNro_casillero(i); //edita el casillero asignado
+                    cas_llenos++; 
                     return;
                 }
             }
@@ -212,11 +214,26 @@ public class GimnasioReloaded {
                     
                     //se evalua si se cumplen las condiciones de longitud de caracteres
                     if (cond1 && cond2 && cond3) {
+                        
+                        //Se reviza si los casilleros estan llenos
+                        int lleno = 0;
+                        for (Cubiculo cubiculo : cubiculos) {
+                            if (cubiculo.lleno()) {
+                                lleno++;
+                            }
+                        }
+                        
+                        if (lleno == num_cubiculos) {
+                            System.out.println("limite alcanzado");
+                            continue;
+                        }
+                        
                         //se buscara el cubiculo con menor carga
                         double cargaTotal = 1;
                         for (Cubiculo cubiculo : cubiculos) {
                             //se calcula la carga de cada cubiculo
-                            double cargaCubiculo = cubiculo.cas_llenos / cubiculo.num_casilleros;
+                            double cargaCubiculo = ((double)cubiculo.cas_llenos/(double)cubiculo.num_casilleros); //divison esta dando 0
+                                                        
                             //si esa carga es menor a la carga total actual, se convierte en la nueva carga
                             if (cargaCubiculo < cargaTotal) {
                                 cargaTotal = cargaCubiculo;
@@ -225,17 +242,49 @@ public class GimnasioReloaded {
 
                         //se busca cuando la carga de cada cubiculo es igual a la carga total.
                         for (int k = 0; k < num_cubiculos; k++) {
-                            double cargaCubiiculo = cubiculos[k].cas_llenos / cubiculos[k].num_casilleros;
+                            double cargaCubiiculo = ((double)cubiculos[k].cas_llenos / (double)cubiculos[k].num_casilleros);
 
                             //si son iguales, se agrega el estudiante al cubiculo y casillero libre
                             //con menor valor y se rompe el ciclo
                             if (cargaCubiiculo == cargaTotal) {
-                                cubiculos[k].agregarEstudiante(nombre, apellido, cedula);
+                                //Si la lista esta vacia crea un estudiante y le asigna un casillero
+                                if (listaEstudiantes.isEmpty()) {
+                                    Estudiante e = new Estudiante(nombre, apellido, cedula);
+                                    cubiculos[k].agregarEstudiante(e, k);
+                                    boolean x = e.sumarEntrada(); //suma una entrada al estudiante e
+                                    listaEstudiantes.add(e);
+                                    System.out.println((e.getNro_cubiculo()+1) + " " + (e.getNro_casillero()+1));
+                                    
+                                }else{ //si no esta vacia se busca si el estudiante ya esta en la base de datos y se le asigna casillero.
+                                    boolean condicion = true;
+                                    for (Estudiante e : listaEstudiantes) {
+                                        if (e.getCedula() == cedula) {
+                                            if (e.sumarEntrada()) { //si el estudiante tiene menos de 4 ingresos se le asigna casillero
+                                                cubiculos[k].agregarEstudiante(e, k);
+                                                System.out.println((e.getNro_cubiculo()+1) + " " + (e.getNro_casillero()+1));
+                                                condicion = false;
+                                                break; 
+                                            }else{ //si no tiene menos de 4 ingresos se le niega el acceso
+                                                System.out.println("ingreso denegado");
+                                                condicion = false;
+                                                break;
+                                            }
+                                            
+                                        }
+                                    }
+                                    //Si el estudiante no esta (condicion = false) entonces se agrega y se le asigna casillero
+                                    if (condicion) {
+                                        Estudiante estudiante = new Estudiante(nombre, apellido, cedula);
+                                        cubiculos[k].agregarEstudiante(estudiante, k);
+                                        boolean x = estudiante.sumarEntrada();//suma una entrada al estudiante
+                                        listaEstudiantes.add(estudiante);
+                                        System.out.println((estudiante.getNro_cubiculo()+1) + " " + (estudiante.getNro_casillero()+1));
+                                    }
+                                }
                                 break;
                             }
                         }
                     }
-                    
                 }
                 //Se evalua si la operacion es salir y luego si se cumple con el tamaño de los datos.
                 else if(comando[0].equals("salir")){ //se evalua si el comando es salir
