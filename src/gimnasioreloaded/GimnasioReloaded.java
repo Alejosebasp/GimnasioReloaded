@@ -95,7 +95,7 @@ public class GimnasioReloaded {
      * @param cas_llenos: numero de casileros llenos en el cubiculo.
      * @param num_casilleros: numero de casilleros totales del cubiculo, sin importar 
      * si estan llenos o vacios
-     * @param estudiantes: arreglo de tamaño num_casilleros, 
+     * @param estudiantes: arreglo de tamano num_casilleros, 
      */
     public static class Cubiculo{
         private int cas_llenos;
@@ -110,9 +110,8 @@ public class GimnasioReloaded {
         
         /**
          * 
-         * @param nombre 
-         * @param apellido
-         * @param cedula 
+         * @param estudiante
+         * @param num_cubiculo
          * agrega a un estudiante en la primera posicion vacia que encuentre 
          * y aumenta el numero de cassilleros llenos
          */
@@ -131,7 +130,7 @@ public class GimnasioReloaded {
         /**
          * 
          * @param cedula 
-         * elimina el estudiante con la cedula dada, si
+         * elimina el estudiante con la cedula dada
          */
         public void eliminarEstudiante(int cedula){
             for (int i = 0; i < num_casilleros; i++) {
@@ -139,6 +138,7 @@ public class GimnasioReloaded {
                     continue;
                 }
                 else{
+                    //busca si el estudiante en ese casillero es el que se desea eliminar
                     if (estudiantes[i].cedula == cedula) {
                         String nombre = estudiantes[i].nombre;
                         estudiantes[i] = null; 
@@ -205,7 +205,7 @@ public class GimnasioReloaded {
                     
                     boolean cond1 = false, cond2 = false, cond3 = false;
                     
-                    //se evalua las restrigciones de tamaño de caracteres para cada dato.
+                    //se evalua las restrigciones de tamano de caracteres para cada dato.
                     if (comando[1].length() <= 50 && comando[1].length() > 0) { 
                         nombre = comando[1];
                         cond1 = true;
@@ -229,7 +229,7 @@ public class GimnasioReloaded {
                                 lleno++;
                             }
                         }
-                        
+                        //si estan lleno se imprime la respuesta al usuario
                         if (lleno == num_cubiculos) {
                             System.out.println("limite alcanzado");
                             continue;
@@ -293,7 +293,7 @@ public class GimnasioReloaded {
                         }
                     }
                 }
-                //Se evalua si la operacion es salir y luego si se cumple con el tamaño de los datos.
+                //Se evalua si la operacion es salir y luego si se cumple con el tamano de los datos.
                 else if(comando[0].equals("salir")){ //se evalua si el comando es salir
                     if (comando[1].length() > 0 && comando[1].length() <= 10) {
                         cedula = Integer.parseInt(comando[1]);
