@@ -134,13 +134,18 @@ public class GimnasioReloaded {
          * elimina el estudiante con la cedula dada, si
          */
         public void eliminarEstudiante(int cedula){
-            for (Estudiante estudiante : estudiantes) {
-                if (estudiante.cedula == cedula) {
-                    String nombre = estudiante.nombre;
-                    estudiante = null; 
-                    cas_llenos--; //disminuye el numero de casilleros llenos
-                    System.out.println(nombre);
-                    return;
+            for (int i = 0; i < num_casilleros; i++) {
+                if (estudiantes[i] == null) {
+                    continue;
+                }
+                else{
+                    if (estudiantes[i].cedula == cedula) {
+                        String nombre = estudiantes[i].nombre;
+                        estudiantes[i] = null; 
+                        cas_llenos--; //disminuye el numero de casilleros llenos
+                        System.out.println(nombre);
+                        return;
+                    }
                 }
             }
         }
@@ -165,6 +170,8 @@ public class GimnasioReloaded {
         int num_casos = Integer.parseInt(entrada);
         
         for (int i = 0; i < num_casos; i++) {
+            
+            System.out.println("Caso #" + (i+1) + ":");
             
             //Lista para guardar todos los estudiantes ingresados al sistema.
             ArrayList<Estudiante> listaEstudiantes = new ArrayList<>();
@@ -290,10 +297,17 @@ public class GimnasioReloaded {
                 else if(comando[0].equals("salir")){ //se evalua si el comando es salir
                     if (comando[1].length() > 0 && comando[1].length() <= 10) {
                         cedula = Integer.parseInt(comando[1]);
+                        
+                        for (Estudiante e : listaEstudiantes) {
+                            if (e.getCedula() == cedula) {
+                                
+                                cubiculos[e.getNro_cubiculo()].eliminarEstudiante(cedula);
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
     }
-    
 }
